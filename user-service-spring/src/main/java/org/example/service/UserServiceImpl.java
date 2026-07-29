@@ -1,0 +1,74 @@
+package org.example.service;
+
+import org.example.entity.User;
+import org.example.event.Operation;
+import org.example.event.UserEvent;
+import org.example.exception.UserNotFoundException;
+import org.example.producer.UserEventProducer;
+import org.example.repository.UserRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class UserServiceImpl implements UserService {
+    private final UserRepository userRepository;
+    private final UserEventProducer producer;
+
+    public UserServiceImpl(UserRepository userRepository, UserEventProducer producer) {
+        this.userRepository = userRepository;
+        this.producer = producer;
+    }
+
+    private void validateId(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Неверный Id");
+        }
+    }
+
+    private User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() ->
+                new UserNotFoundException("Пользователь не найден"));
+    }
+
+
+    @Override
+    public void createUser(String name, String email, Integer age) {
+        UserValidator.validate(name, email, age);
+        User user = new User(name, email, age);
+        userRepository.save(user);
+        UserEvent event = new UserEvent(Operation.CREATE, user.getEmail());
+        producer.send(event);
+    }
+
+    @Override
+    public User findById(Long id) {
+        validateId(id);
+        return getUserById(id);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public void updateUser(Long id, String name, String email, Integer age) {
+        validateId(id);
+        User user = getUserById(id);
+        UserValidator.validate(name, email, age);
+        user.setName(name);
+        user.setEmail(email);
+        user.setAge(age);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        validateId(id);
+        User user = getUserById(id);
+        userRepository.deleteById(id);
+        UserEvent event = new UserEvent(Operation.DELETE, user.getEmail());
+        producer.send(event);
+    }
+}
