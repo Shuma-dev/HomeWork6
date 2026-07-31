@@ -12,7 +12,7 @@ docker compose up -d
 
 Приложение будет доступно по адресу:
 
-http://localhost:8080
+http://localhost:8080/users
 
 Для проверки API можно использовать Postman.
 
