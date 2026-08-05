@@ -44,36 +44,36 @@ public class UserRepositoryTest {
         userRepository.deleteAll();
     }
 
-    // =====================
-    // save()
-    // =====================
+    /* =====================
+     save()
+     =====================*/
 
     @Test
     @DisplayName("Пользователь создан")
     public void save_ShouldSaveUser() {
-        User user = new User("Denis", "denis@com", 26);
+        User user = new User("Denis", "denis@gmail.com", 26);
         userRepository.save(user);
         assertNotNull(user.getId());
         User savedUser = userRepository.findById(user.getId()).orElseThrow();
         assertEquals("Denis", savedUser.getName());
-        assertEquals("denis@com", savedUser.getEmail());
+        assertEquals("denis@gmail.com", savedUser.getEmail());
         assertEquals(26, savedUser.getAge());
     }
 
-    // =====================
-    // findById()
-    // =====================
+    /* =====================
+     findById()
+     =====================*/
 
     @Test
     @DisplayName("Пользователь найден")
     public void findById_ShouldReturnUser() {
-        User user = new User("Denis", "denis@com", 26);
+        User user = new User("Denis", "denis@gmail.com", 26);
         userRepository.save(user);
         assertNotNull(user.getId());
         User foundUser = userRepository.findById(user.getId()).orElseThrow();
         assertNotNull(foundUser);
         assertEquals("Denis", foundUser.getName());
-        assertEquals("denis@com", foundUser.getEmail());
+        assertEquals("denis@gmail.com", foundUser.getEmail());
         assertEquals(26, foundUser.getAge());
     }
 
@@ -83,15 +83,15 @@ public class UserRepositoryTest {
         assertTrue(userRepository.findById(999L).isEmpty());
     }
 
-    // =====================
-    // findAll()
-    // =====================
+    /* =====================
+     findAll()
+     =====================*/
 
     @Test
     @DisplayName("список пользователей")
     public void findAll_ShouldReturnUsers() {
-        User user1 = new User("Denis", "denis@com", 26);
-        User user2 = new User("Ivan", "ivan@com", 30);
+        User user1 = new User("Denis", "denis@gmail.com", 26);
+        User user2 = new User("Ivan", "ivan@gmail.com", 30);
         userRepository.save(user1);
         userRepository.save(user2);
         List<User> users = userRepository.findAll();
@@ -108,34 +108,34 @@ public class UserRepositoryTest {
         assertTrue(users.isEmpty());
     }
 
-    // =====================
-    // update()
-    // =====================
+    /* =====================
+     update()
+     =====================*/
 
     @Test
     @DisplayName("пользователь обновлен")
     public void update_ShouldUpdateUser() {
-        User user = new User("Denis", "denis@com", 26);
+        User user = new User("Denis", "denis@gmail.com", 26);
         userRepository.save(user);
         user.setName("Ivan");
-        user.setEmail("ivan@com");
+        user.setEmail("ivan@gmail.com");
         user.setAge(30);
         userRepository.save(user);
         User updatedUser = userRepository.findById(user.getId()).orElseThrow();
         assertEquals("Ivan", updatedUser.getName());
-        assertEquals("ivan@com", updatedUser.getEmail());
+        assertEquals("ivan@gmail.com", updatedUser.getEmail());
         assertEquals(30, updatedUser.getAge());
 
     }
 
-    // =====================
-    // delete()
-    // =====================
+   /*  =====================
+     delete()
+     =====================*/
 
     @Test
     @DisplayName("пользователь удален")
     public void delete_ShouldDeleteUser() {
-        User user = new User("Denis", "denis@com", 26);
+        User user = new User("Denis", "denis@gmail.com", 26);
         userRepository.save(user);
         userRepository.deleteById(user.getId());
         assertTrue(userRepository.findById(user.getId()).isEmpty());

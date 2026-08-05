@@ -7,7 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.stereotype.Service;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 
 
 @Service
@@ -24,6 +27,12 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+
+    @Retryable(
+            retryFor = MailException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000)
+    )
     public void sendEmail(UserEvent event) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
@@ -39,22 +48,27 @@ public class EmailService {
             log.info("Письмо успешно отправлено пользователю {}", event.getEmail());
         } catch (MailException e) {
             log.error("Не удалось отправить письмо пользователю {}", event.getEmail(), e);
+            throw e;
         }
+    }
+
+    @Recover
+    public void recover(MailException e, UserEvent event) {
+        log.error("Не удалось отправить письмо пользователю {} после 3 попыток",
+                event.getEmail(), e);
     }
 
     private void fillCreateMessage(SimpleMailMessage message) {
         message.setSubject("Добро пожаловать!");
         message.setText("Здравствуйте!\n" +
                 "\n" +
-                "Ваш аккаунт успешно создан\n" +
-                "\n" +
-                "Спасибо за регистрацию!");
+                "Ваш аккаунт на сайте Microservices Project был успешно создан.");
     }
 
     private void fillDeleteMessage(SimpleMailMessage message) {
         message.setSubject("Аккаунт удален");
         message.setText("Здравствуйте!\n" +
                 "\n" +
-                "Ваш аккаунт был успешно удален");
+                "Ваш аккаунт был удален.");
     }
 }

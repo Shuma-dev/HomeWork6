@@ -7,6 +7,7 @@ import org.example.exception.UserNotFoundException;
 import org.example.producer.UserEventProducer;
 import org.example.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,8 +34,12 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
+    @Transactional
     public void createUser(String name, String email, Integer age) {
         UserValidator.validate(name, email, age);
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email уже существует");
+        }
         User user = new User(name, email, age);
         userRepository.save(user);
         UserEvent event = new UserEvent(Operation.CREATE, user.getEmail());
@@ -53,10 +58,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateUser(Long id, String name, String email, Integer age) {
         validateId(id);
         User user = getUserById(id);
         UserValidator.validate(name, email, age);
+        if (!user.getEmail().equals(email) && userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email уже существует");
+        }
         user.setName(name);
         user.setEmail(email);
         user.setAge(age);
@@ -64,6 +73,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
         validateId(id);
         User user = getUserById(id);

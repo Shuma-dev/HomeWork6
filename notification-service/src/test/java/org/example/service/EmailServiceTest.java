@@ -42,7 +42,7 @@ public class EmailServiceTest {
         assertEquals("no-reply@test.com", message.getFrom());
         assertEquals("reply@test.com", message.getTo()[0]);
         assertEquals("Добро пожаловать!", message.getSubject());
-        assertTrue(message.getText().contains("Ваш аккаунт успешно создан"));
+        assertTrue(message.getText().contains("Ваш аккаунт на сайте Microservices Project был успешно создан."));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class EmailServiceTest {
         assertEquals("no-reply@test.com", message.getFrom());
         assertEquals("reply@test.com", message.getTo()[0]);
         assertEquals("Аккаунт удален", message.getSubject());
-        assertTrue(message.getText().contains("Ваш аккаунт был успешно удален"));
+        assertTrue(message.getText().contains("Ваш аккаунт был удален."));
     }
 
 }

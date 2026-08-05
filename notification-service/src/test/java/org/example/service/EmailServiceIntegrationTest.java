@@ -41,7 +41,7 @@ public class EmailServiceIntegrationTest {
         assertEquals("test@example.com", messages[0].getAllRecipients()[0].toString());
         assertEquals("Добро пожаловать!", messages[0].getSubject());
         String body = (String) messages[0].getContent();
-        assertTrue(body.contains("Ваш аккаунт успешно создан"));
+        assertTrue(body.contains("Ваш аккаунт на сайте Microservices Project был успешно создан."));
     }
 
     @Test
@@ -54,6 +54,6 @@ public class EmailServiceIntegrationTest {
         assertEquals("test@example.com", messages[0].getAllRecipients()[0].toString());
         assertEquals("Аккаунт удален", messages[0].getSubject());
         String body = (String) messages[0].getContent();
-        assertTrue(body.contains("Ваш аккаунт был успешно удален"));
+        assertTrue(body.contains("Ваш аккаунт был удален."));
     }
 }

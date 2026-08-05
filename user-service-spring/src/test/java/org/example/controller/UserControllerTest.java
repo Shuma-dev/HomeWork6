@@ -31,20 +31,20 @@ public class UserControllerTest {
     @MockitoBean
     private UserService userService;
 
-    // =====================
-    // getUsers()
-    // =====================
+    /* =====================
+     getUsers()
+     =====================*/
 
 
     @Test
     @DisplayName("показать список пользователей")
     public void getUsers_ShouldReturnUsers() throws Exception {
-        List<User> users = List.of(new User("Denis", "den@com", 26));
+        List<User> users = List.of(new User("Denis", "den@gmail.com", 26));
         when(userService.findAll()).thenReturn(users);
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Denis"))
-                .andExpect(jsonPath("$[0].email").value("den@com"))
+                .andExpect(jsonPath("$[0].email").value("den@gmail.com"))
                 .andExpect(jsonPath("$[0].age").value(26));
         verify(userService).findAll();
         verifyNoMoreInteractions(userService);
@@ -62,19 +62,19 @@ public class UserControllerTest {
         verifyNoMoreInteractions(userService);
     }
 
-    // =====================
-    // getUser()
-    // =====================
+    /* =====================
+     getUser()
+     =====================*/
 
     @Test
     @DisplayName("показать пользователя")
     public void findById_ShouldReturnUser() throws Exception {
-        User user = new User("Denis", "den@com", 26);
+        User user = new User("Denis", "den@gmail.com", 26);
         when(userService.findById(1L)).thenReturn(user);
         mockMvc.perform(get("/users/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Denis"))
-                .andExpect(jsonPath("$.email").value("den@com"))
+                .andExpect(jsonPath("$.email").value("den@gmail.com"))
                 .andExpect(jsonPath("$.age").value(26));
         verify(userService).findById(1L);
         verifyNoMoreInteractions(userService);
@@ -105,14 +105,14 @@ public class UserControllerTest {
     }
 
 
-    // =====================
-    // createUser()
-    // =====================
+    /* =====================
+     createUser()
+     =====================*/
 
     @Test
     @DisplayName("создать пользователя")
     public void createUser_ShouldSaveUser() throws Exception {
-        UserRequestDto request = new UserRequestDto("Denis", "den@com", 26);
+        UserRequestDto request = new UserRequestDto("Denis", "den@gmail.com", 26);
         String json = objectMapper.writeValueAsString(request);
         mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -126,7 +126,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("должен вернуть 400, если имя пустое")
     public void createUser_ShouldReturn400_WhenNameIsBlank() throws Exception {
-        UserRequestDto request = new UserRequestDto(" ", "den@com", 26);
+        UserRequestDto request = new UserRequestDto(" ", "den@gmail.com", 26);
         doThrow(new IllegalArgumentException("Имя не может быть пустым"))
                 .when(userService)
                 .createUser(
@@ -168,9 +168,33 @@ public class UserControllerTest {
     }
 
     @Test
+    @DisplayName("должен вернуть 400, если email имеет неверный формат")
+    void createUser_ShouldReturn400_WhenEmailHasWrongFormat() throws Exception {
+        UserRequestDto request = new UserRequestDto("Denis", "den@gmail", 26);
+        doThrow(new IllegalArgumentException("Неверный email"))
+                .when(userService)
+                .createUser(
+                        request.getName(),
+                        request.getEmail(),
+                        request.getAge());
+        String json = objectMapper.writeValueAsString(request);
+        mockMvc.perform(post("/users")
+                        .content(json)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Неверный email"))
+                .andExpect(jsonPath("$.status").value(400));
+        verify(userService).createUser(
+                request.getName(),
+                request.getEmail(),
+                request.getAge());
+        verifyNoMoreInteractions(userService);
+    }
+
+    @Test
     @DisplayName("должен вернуть 400, если возраст пустой")
     public void createUser_ShouldReturn400_WhenAgeIsInvalid() throws Exception {
-        UserRequestDto request = new UserRequestDto("Denis", "den@com", null);
+        UserRequestDto request = new UserRequestDto("Denis", "den@gmail.com", null);
         doThrow(new IllegalArgumentException("Неверный возраст"))
                 .when(userService)
                 .createUser(
@@ -189,14 +213,14 @@ public class UserControllerTest {
         verifyNoMoreInteractions(userService);
     }
 
-    // =====================
-    // updateUser()
-    // =====================
+    /* =====================
+     updateUser()
+     =====================*/
 
     @Test
     @DisplayName("обновить пользователя")
     public void updateUser_ShouldUpdateUser() throws Exception {
-        UserRequestDto request = new UserRequestDto("Denis", "den@com", 26);
+        UserRequestDto request = new UserRequestDto("Denis", "den@gmail.com", 26);
         String json = objectMapper.writeValueAsString(request);
         mockMvc.perform(put("/users/{id}", 1L)
                         .content(json)
@@ -212,7 +236,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("должен вернуть 404, если пользователь не найден при обновлении")
     public void updateUser_ShouldReturn404_WhenUserNotFound() throws Exception {
-        UserRequestDto request = new UserRequestDto("Denis", "den@com", 26);
+        UserRequestDto request = new UserRequestDto("Denis", "den@gmail.com", 26);
         doThrow(new UserNotFoundException("Пользователь не найден"))
                 .when(userService)
                 .updateUser(1L,
@@ -237,7 +261,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("должен вернуть 400 при ошибке валидации")
     public void updateUser_ShouldReturn400_WhenValidationFails() throws Exception {
-        UserRequestDto request = new UserRequestDto(" ", "den@com", 26);
+        UserRequestDto request = new UserRequestDto(" ", "den@gmail.com", 26);
         doThrow(new IllegalArgumentException("Имя не может быть пустым"))
                 .when(userService)
                 .updateUser(1L,
@@ -258,9 +282,9 @@ public class UserControllerTest {
         verifyNoMoreInteractions(userService);
     }
 
-    // =====================
-    // deleteUser()
-    // =====================
+    /* =====================
+     deleteUser()
+     =====================*/
 
     @Test
     @DisplayName("удаление пользователя")
