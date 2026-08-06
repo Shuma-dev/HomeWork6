@@ -9,6 +9,7 @@ import org.example.assembler.UserModelAssembler;
 import org.example.dto.UserRequestDto;
 import org.example.dto.UserResponseDto;
 import org.example.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -46,9 +47,10 @@ public class UserController {
             description = "Создать нового пользователя в базе данных"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Пользователь успешно создан"),
+            @ApiResponse(responseCode = "201", description = "Пользователь успешно создан"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные пользователя")
     })
+    @ResponseStatus(HttpStatus.CREATED)
     public void createUser(@RequestBody UserRequestDto request) {
         userService.createUser(request.getName(), request.getEmail(), request.getAge());
     }
@@ -94,7 +96,7 @@ public class UserController {
             description = "Удаляет пользователя по указанному идентификатору"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Пользователь удален"),
+            @ApiResponse(responseCode = "204", description = "Пользователь удален"),
             @ApiResponse(responseCode = "400", description = "Некорректный идентификатор"),
             @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
     })

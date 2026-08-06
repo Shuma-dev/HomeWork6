@@ -24,7 +24,7 @@ public class UserModelAssembler implements RepresentationModelAssembler<User, Us
                 user.getCreatedAt()
         );
 
-        //
+
        /* dto.add(
                 linkTo(methodOn(UserController.class)
                         .getUser(user.getId()))

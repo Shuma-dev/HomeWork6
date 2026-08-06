@@ -1,6 +1,8 @@
 package org.example.controller;
 
+import org.example.assembler.UserModelAssembler;
 import org.example.dto.UserRequestDto;
+import org.example.dto.UserResponseDto;
 import org.example.entity.User;
 import org.example.exception.UserNotFoundException;
 import org.example.service.UserService;
@@ -31,6 +33,9 @@ public class UserControllerTest {
     @MockitoBean
     private UserService userService;
 
+    @MockitoBean
+    private UserModelAssembler assembler;
+
     /* =====================
      getUsers()
      =====================*/
@@ -40,6 +45,14 @@ public class UserControllerTest {
     @DisplayName("показать список пользователей")
     public void getUsers_ShouldReturnUsers() throws Exception {
         List<User> users = List.of(new User("Denis", "den@gmail.com", 26));
+        UserResponseDto dto = new UserResponseDto(
+                1L,
+                "Denis",
+                "den@gmail.com",
+                26,
+                null
+        );
+        when(assembler.toModel(users.getFirst())).thenReturn(dto);
         when(userService.findAll()).thenReturn(users);
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
@@ -70,7 +83,16 @@ public class UserControllerTest {
     @DisplayName("показать пользователя")
     public void findById_ShouldReturnUser() throws Exception {
         User user = new User("Denis", "den@gmail.com", 26);
+        UserResponseDto dto = new UserResponseDto(
+                1L,
+                "Denis",
+                "den@gmail.com",
+                26,
+                null
+        );
+
         when(userService.findById(1L)).thenReturn(user);
+        when(assembler.toModel(user)).thenReturn(dto);
         mockMvc.perform(get("/users/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Denis"))
@@ -115,7 +137,7 @@ public class UserControllerTest {
         UserRequestDto request = new UserRequestDto("Denis", "den@gmail.com", 26);
         String json = objectMapper.writeValueAsString(request);
         mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
         verify(userService).createUser(
                 request.getName(),
                 request.getEmail(),
@@ -290,7 +312,7 @@ public class UserControllerTest {
     @DisplayName("удаление пользователя")
     public void deleteUser_ShouldDeleteUser() throws Exception {
         mockMvc.perform(delete("/users/{id}", 1L))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
         verify(userService).deleteUser(1L);
         verifyNoMoreInteractions(userService);
     }
