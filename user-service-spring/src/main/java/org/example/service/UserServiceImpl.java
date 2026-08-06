@@ -1,10 +1,7 @@
 package org.example.service;
 
 import org.example.entity.User;
-import org.example.event.Operation;
-import org.example.event.UserEvent;
 import org.example.exception.UserNotFoundException;
-import org.example.producer.UserEventProducer;
 import org.example.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,11 +11,9 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final UserEventProducer producer;
 
-    public UserServiceImpl(UserRepository userRepository, UserEventProducer producer) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.producer = producer;
     }
 
     private void validateId(Long id) {
@@ -42,8 +37,6 @@ public class UserServiceImpl implements UserService {
         }
         User user = new User(name, email, age);
         userRepository.save(user);
-        UserEvent event = new UserEvent(Operation.CREATE, user.getEmail());
-        producer.send(event);
     }
 
     @Override
@@ -76,9 +69,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUser(Long id) {
         validateId(id);
-        User user = getUserById(id);
+        getUserById(id);
         userRepository.deleteById(id);
-        UserEvent event = new UserEvent(Operation.DELETE, user.getEmail());
-        producer.send(event);
     }
 }

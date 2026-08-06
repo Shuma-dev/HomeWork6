@@ -1,9 +1,17 @@
 package org.example.dto;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class UserRequestDto {
+
+    @Schema(description = "Имя пользователя", example = "Denis")
     private String name;
+
+    @Schema(description = "Электронная почта", example = "denis@example.com")
     private String email;
+
+    @Schema(description = "Возраст пользователя", example = "25")
     private Integer age;
 
     public UserRequestDto(String name, String email, Integer age) {
