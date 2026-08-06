@@ -1,9 +1,6 @@
-# Microservices Project
+# HomeWork 6
 
-Микросервисное приложение на Spring Boot, состоящее из двух сервисов:
-
-- **user-service** — управление пользователями и публикация событий в Kafka.
-- **notification-service** — получение событий из Kafka и отправка email-уведомлений.
+REST API для управления пользователями на Spring Boot.
 
 ## Запуск
 
@@ -13,35 +10,10 @@
 docker compose up -d
 ```
 
-После запуска Docker запустите приложения:
+Запустите приложение.
 
-- `user-service`
-- `notification-service`
+## Swagger
 
-## Использование через терминал
+Документация API доступна по адресу:
 
-Создать пользователя:
-
-```bash
-curl -X POST http://localhost:8080/users \
--H "Content-Type: application/json" \
--d '{
-  "name":"Denis",
-  "email":"test@example.com",
-  "age":25
-}'
-```
-
-Удалить пользователя:
-
-```bash
-curl -X DELETE http://localhost:8080/users/{id}
-```
-
-Приложение доступно по адресу:
-
-```
-http://localhost:8080/users
-```
-
-После создания пользователь сохраняется в PostgreSQL, событие отправляется в Kafka, а `notification-service` получает его и отправляет email на указанный адрес
+http://localhost:8080/swagger-ui/index.html
