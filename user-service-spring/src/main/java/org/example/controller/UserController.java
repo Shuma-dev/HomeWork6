@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.assembler.UserModelAssembler;
 import org.example.dto.UserRequestDto;
 import org.example.dto.UserResponseDto;
+import org.example.entity.User;
 import org.example.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,9 +52,9 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "Пользователь успешно создан"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные пользователя")
     })
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createUser(@RequestBody UserRequestDto request) {
-        userService.createUser(request.getName(), request.getEmail(), request.getAge());
+    public ResponseEntity<UserResponseDto> createUser(@RequestBody UserRequestDto request) {
+        User user = userService.createUser(request.getName(), request.getEmail(),request.getAge());
+        return ResponseEntity.status(HttpStatus.CREATED).body(assembler.toModel(user));
     }
 
     @GetMapping("/{id}")
@@ -82,13 +83,13 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Некорректный идентификатор"),
             @ApiResponse(responseCode = "404", description = "Пользователь не найден"),
     })
-    public ResponseEntity<Void> updateUser(
+    public ResponseEntity<UserResponseDto> updateUser(
             @Parameter(description = "Идентификатор пользователя", example = "1")
             @PathVariable Long id,
             @RequestBody UserRequestDto request) {
 
-        userService.updateUser(id, request.getName(), request.getEmail(), request.getAge());
-        return ResponseEntity.ok().build();
+       User user = userService.updateUser(id, request.getName(), request.getEmail(), request.getAge());
+        return ResponseEntity.ok(assembler.toModel(user));
     }
 
     @DeleteMapping("/{id}")

@@ -30,13 +30,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void createUser(String name, String email, Integer age) {
+    public User createUser(String name, String email, Integer age) {
         UserValidator.validate(name, email, age);
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email уже существует");
         }
         User user = new User(name, email, age);
-        userRepository.save(user);
+        return userRepository.save(user);
+
     }
 
     @Override
@@ -52,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(Long id, String name, String email, Integer age) {
+    public User updateUser(Long id, String name, String email, Integer age) {
         validateId(id);
         User user = getUserById(id);
         UserValidator.validate(name, email, age);
@@ -62,7 +63,7 @@ public class UserServiceImpl implements UserService {
         user.setName(name);
         user.setEmail(email);
         user.setAge(age);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
